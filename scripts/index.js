@@ -5781,3 +5781,63 @@ function debounce (func, wait) {
     };
 
 }
+
+
+
+// ══════════════════════════════════════════════
+//  SPECTROGRAM TOOLTIP
+// ══════════════════════════════════════════════
+let tooltip = null;
+
+function getOrCreateTooltip() {
+    if (tooltip) return tooltip;
+    tooltip = document.createElement('div');
+    tooltip.id = '__ac_spectrogram_tip__';
+    Object.assign(tooltip.style, {
+      position: 'fixed', display: 'none', pointerEvents: 'none',
+      zIndex: '2147483647', background: 'rgba(10,12,18,0.92)',
+      color: '#fff', border: '1px solid #00e5ff', borderRadius: '4px',
+      padding: '4px 8px', fontSize: '11px', fontFamily: 'monospace',
+      whiteSpace: 'nowrap', boxShadow: '0 0 8px rgba(0,229,255,0.4)', lineHeight: '1.6',
+    });
+    document.documentElement.appendChild(tooltip);
+    return tooltip;
+  }
+
+function updateSpectrogramTooltip(e) {
+    const canvas = document.getElementById('spectrogram-drag-canvas');
+    if (!canvas) { hideSpectrogramTooltip(); return; }
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.clientX, cy = e.clientY;
+    if (cx < rect.left || cx > rect.right || cy < rect.top || cy > rect.bottom) {
+      hideSpectrogramTooltip();
+      canvas.style.cursor = '';
+      return;
+    }
+    canvas.style.cursor = 'crosshair';
+    const relX = cx - rect.left, relY = cy - rect.top;
+    const seconds = (relX / rect.width) * 60;
+    const SpectrogramTop = getSampleRate()/2000;
+    const khz     = SpectrogramTop - (relY / rect.height) * SpectrogramTop;
+    const tip = getOrCreateTooltip();
+    tip.innerHTML = ` ${khz.toFixed(0)} kHz`;
+    tip.style.display = 'block';
+    const tipW = tip.offsetWidth || 120, tipH = tip.offsetHeight || 28, margin = 14;
+    let left = cx + margin, top = cy - tipH / 2;
+    if (left + tipW > window.innerWidth  - 4) left = cx - tipW - margin;
+    if (top < 4)                               top  = 4;
+    if (top + tipH > window.innerHeight - 4)  top  = window.innerHeight - tipH - 4;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+function hideSpectrogramTooltip() {
+    if (tooltip) tooltip.style.display = 'none';
+  }
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    updateSpectrogramTooltip(e);
+  }, true);
+
