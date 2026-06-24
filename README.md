@@ -3,6 +3,8 @@ A web-based analysis tool for experimenting with the filter and trigger settings
 
 Available online at [play.openacousticdevices.info](http://play.openacousticdevices.info).
 
+GeoNomad version at [https://benlo.com/audiomoth](https://benlo.com/audiomoth).
+
 For more details on the device itself, visit [www.openacousticdevices.info](http://www.openacousticdevices.info).
 
 ### Related Repositories ###
